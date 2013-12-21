@@ -45,7 +45,6 @@ void SetupLights() {
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-
 	GLfloat lightIntensity[] = { 0.7f, 0.7f, 1, 1.0f };
 	GLfloat light_position[] = { px, 0.5f, pz, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -69,7 +68,6 @@ void display() {
 			healthPack(hpx[i], hpy[i]);
 		}
 	}
-
 	glFlush();
 }
 
