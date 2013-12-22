@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "gl/glut.h"
+#include <math.h>
+
+//#include <algorithm>
+
+using namespace std;
 
 float sxs[] = {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 10.8f, 1.8f, 1.8f, 0.6f, 4.0f, 3.4f, 3.0f, 4.2f, 10.2f};
 float szs[] = {11.2f, 2.6f, 6.0f, 6.0f, 1.8f, 1.8f, 9.8f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f};
@@ -10,8 +15,8 @@ bool hp[] = {true, true, true};
 float hpx[] = {0.6f, 2.4f, 4.4f};
 float hpy[] = {3.4f, 8.4f, 4.4f};
 
-float px = 15.0f, pz = 0.7f;
-
+float px = 15.0f, py=0.5f, pz = 0.7f;
+float lookatX = 10.0f, lookatY = 0.5f, lookatZ = 0.7f;
 float health = 100;
 
 void wall(float sx, float sz, float tx, float tz) {
@@ -46,20 +51,21 @@ void SetupLights() {
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
-	GLfloat lightIntensity[] = { 0.7f, 0.7f, 1, 1.0f };
+	GLfloat lightIntensity[] = { 0.7f, 0.7f, 1, 0.5f };
 	GLfloat light_position[] = { px, 0.5f, pz, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
 }
 
 void display() {
-	SetupLights();
+		SetupLights();
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60, 1000 / 500, 0.001, 100);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(px, 0.5, pz, 10, 0.5, 0.7, 0.0, 1.0, 0.0);
+	gluLookAt(px, py, pz, lookatX, lookatY, lookatZ, 0.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for(int i = 0; i <= 16; i++) {
 		wall(sxs[i], szs[i], txs[i], tzs[i]);
@@ -71,15 +77,75 @@ void display() {
 	}
 
 	glFlush();
+	glutPostRedisplay();
 }
 
-void main(int argc, char** argv) {
+void keyboardPressed(unsigned char thekey, int mouseX, int mouseY)
+{
+	
+	float chx=0.01*(px-lookatX), chz=0.01*(pz-lookatZ);
+	switch (thekey)
+	{
+	case 's':
+		px+=chx;
+		pz+=chz;
+		lookatX+=chx;
+		lookatZ+=chz;
+		break;
+	case 'w':
+		px-=chx;
+		pz-=chz;
+		lookatX-=chx;
+		lookatZ-=chz;
+		break;
+	/*case 'a':
+		px+=chz;
+		pz+=chx;
+		lookatX+=chz;
+		lookatZ+=chx;
+		break;
+	case 'd':
+		px-=chz;
+		pz-=chx;
+		lookatX-=chz;
+		lookatZ-=chx;
+		break;
+		*/
+	case 'r':
+	//	swap(lookatX, px);
+		//swap(lookatZ, pz);
+		break;
+	}
+}
+
+float lastx=500, lasty=250;
+
+void mouseMoved(GLint x, GLint y){
+	/* Update the saved mouse position */
+	int diffx=x-lastx; //check the difference between the current x and the last x position
+	int diffy=y-lasty; //check the difference between the current y and the last y position
+	lastx=x; //set lastx to the current x position
+	lasty=y; //set lasty to the current y position
+	
+	lookatY -= 0.1*(float) diffy; //set the xrot to xrot with the addition of the difference in the y position
+	
+	//lookatX -= 0.1 * (float) diffx;
+	lookatZ -= 0.1 * (float) diffx;
+	
+	if(lookatY>3) lookatY=3;
+	if(lookatY<-3) lookatY=-3;
+}
+
+int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1000,500);
 	glutInitWindowPosition(200, 150);
 	glutCreateWindow("Maze + Was7sh");
 	glutDisplayFunc(display);
+	glutPassiveMotionFunc(mouseMoved);
+	glutKeyboardFunc( keyboardPressed );
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glShadeModel(GL_SMOOTH);
@@ -87,4 +153,6 @@ void main(int argc, char** argv) {
 	glEnable(GL_NORMALIZE);
 	glClearColor(1.0,1.0,1.0,0.0);
 	glutMainLoop();
+	
+	return 0;
 }
