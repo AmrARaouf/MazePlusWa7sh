@@ -2,7 +2,6 @@
 #include "gl/glut.h"
 #include <math.h>
 
-//#include <algorithm>
 
 using namespace std;
 
@@ -16,8 +15,11 @@ float hpx[] = {0.6f, 2.4f, 4.4f};
 float hpy[] = {3.4f, 8.4f, 4.4f};
 
 float px = 15.0f, py=0.5f, pz = 0.7f;
-float lookatX = 10.0f, lookatY = 0.5f, lookatZ = 0.7f;
+float lookatX = -1.0f, lookatY = 0.0f, lookatZ = 0.0f;
 float health = 100;
+
+float lastx=500, lasty=250;
+float angle = 0.0f;
 
 void wall(float sx, float sz, float tx, float tz) {
 	GLfloat mat_diffuse[] = { 0.6f, 0.6f, 0.6f, 1.0f };
@@ -63,7 +65,7 @@ void display() {
 	gluPerspective(60, 1000 / 500, 0.001, 100);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(px, py, pz, lookatX, lookatY, lookatZ, 0.0, 1.0, 0.0);
+	gluLookAt(px, py, pz, lookatX + px, lookatY + py, lookatZ + pz, 0.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	for(int i = 0; i <= 16; i++) {
 		wall(sxs[i], szs[i], txs[i], tzs[i]);
@@ -78,55 +80,28 @@ void display() {
 }
 
 void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
-	float chx=0.01*(px-lookatX), chz=0.01*(pz-lookatZ);
+	float displacementX = 0.05 * lookatX;
+	float displacementZ = 0.05 * lookatZ;
 	switch (thekey) {
-		case 's':
-			px+=chx;
-			pz+=chz;
-			lookatX+=chx;
-			lookatZ+=chz;
-			break;
 		case 'w':
-			px-=chx;
-			pz-=chz;
-			lookatX-=chx;
-			lookatZ-=chz;
+			px += displacementX;
+			pz += displacementZ;
 			break;
-		/*case 'a':
-			px+=chz;
-			pz+=chx;
-			lookatX+=chz;
-			lookatZ+=chx;
+		case 's':
+			px -= displacementX;
+			pz -= displacementZ;
 			break;
 		case 'd':
-			px-=chz;
-			pz-=chx;
-			lookatX-=chz;
-			lookatZ-=chx;
+			angle -= 0.02f;
+			lookatX= -cos(angle);
+			lookatZ = sin(angle);
 			break;
-			*/
+		case 'a':
+			angle += 0.02f;
+			lookatX = -cos(angle);
+			lookatZ = sin(angle);
+			break;
 	}
-}
-
-float lastx=500, lasty=250;
-int dir;
-
-void mouseMoved(GLint x, GLint y){
-	float diffx = x - lastx;
-	float diffy = y - lasty;
-	lastx=x;
-	lasty=y;
-	if (lookatY < 1 && lookatY > -1) {
-		lookatY -= 0.01*diffy;
-	}
-	/*if (px - lookatX <= 
-
-	switch(dir) {
-	case 1: lookatX -= 0.01 * diffy;
-	case 2: lookatZ -= 0.01 * diffx;
-	case 3: lookatX += 0.01 * diffy;
-	case 4: lookatZ += 0.01 * diffx;
-	}*/
 }
 
 int main(int argc, char** argv) {
@@ -136,9 +111,7 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(200, 150);
 	glutCreateWindow("Maze + Was7sh");
 	glutDisplayFunc(display);
-	glutPassiveMotionFunc(mouseMoved);
-	glutKeyboardFunc( keyboardPressed );
-
+	glutKeyboardFunc(keyboardPressed);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glShadeModel(GL_SMOOTH);
@@ -146,6 +119,5 @@ int main(int argc, char** argv) {
 	glEnable(GL_NORMALIZE);
 	glClearColor(1.0,1.0,1.0,0.0);
 	glutMainLoop();
-	
 	return 0;
 }
