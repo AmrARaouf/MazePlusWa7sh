@@ -6,15 +6,15 @@
 using namespace std;
 
 float sxs[] = {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 10.8f, 1.8f, 1.8f, 0.6f, 4.0f, 3.4f, 3.0f, 4.2f, 10.2f};
-float szs[] = {11.2f, 2.6f, 6.0f, 6.0f, 1.8f, 1.8f, 9.8f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f};
+float szs[] = {11.2f, 2.6f, 6.0f, 6.0f, 1.8f, 1.8f, 10.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f};
 float txs[] = {0.0f, 1.8f, 3.8f, 4.8f, 7.8f, 8.8f, 10.8f, 0.2f, 0.2f, 0.2f, 4.2f, 6.8f, 0.2f, 7.8f, 1.8f, 1.0f};
-float tzs[] = {0.0f, 8.2f, 1.0f, 1.0f, 6.0f, 2.0f, 1.0f, 0.0f, 1.8f, 3.8f, 3.8f, 3.8f, 5.8f, 7.8f, 7.8f, 10.8f};
+float tzs[] = {0.0f, 8.2f, 1.0f, 1.0f, 6.0f, 2.0f, 0.4f, 0.0f, 1.8f, 3.8f, 3.8f, 3.8f, 5.8f, 7.8f, 7.8f, 10.8f};
 
 bool hp[] = {true, true, true};
 float hpx[] = {0.6f, 2.4f, 4.4f};
 float hpy[] = {3.4f, 8.4f, 4.4f};
 
-float px = 15.0f, py=0.5f, pz = 0.7f;
+float px = 10.4f, py=0.5f, pz = 0.7f;
 float lookatX = -1.0f, lookatY = 0.0f, lookatZ = 0.0f;
 float health = 100;
 
