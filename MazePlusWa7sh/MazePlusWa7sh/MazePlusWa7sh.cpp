@@ -1,7 +1,7 @@
 #include "stdafx.h"
+#include <cstdlib>
 #include "gl/glut.h"
-#include <math.h>
-
+#include <iostream>
 
 using namespace std;
 
@@ -58,6 +58,19 @@ void SetupLights() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
 }
 
+bool between(float a, float b, float c) {
+	return (a <= b && b <= c);
+}
+
+bool collision() {
+	for (int i = 0; i < 16; i++) {
+		if (between(txs[i], px, txs[i] + sxs[i]) && between(tzs[i], pz, tzs[i] + szs[i])) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void display() {
 	SetupLights();
 	glMatrixMode(GL_PROJECTION);
@@ -86,10 +99,18 @@ void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
 		case 'w':
 			px += displacementX;
 			pz += displacementZ;
+			if (collision()) {
+				px -= displacementX;
+				pz -= displacementZ;
+			}
 			break;
 		case 's':
 			px -= displacementX;
 			pz -= displacementZ;
+			if (collision()) {
+				px += displacementX;
+				pz += displacementZ;
+			}
 			break;
 		case 'd':
 			angle -= 0.02f;
