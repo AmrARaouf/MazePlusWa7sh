@@ -10,10 +10,10 @@
 
 using namespace std;
 
-float sxs[] = {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 10.8f, 1.8f, 1.8f, 0.6f, 4.0f, 3.4f, 3.0f, 4.2f, 10.2f};
-float szs[] = {11.2f, 2.6f, 6.0f, 6.0f, 1.8f, 1.8f, 10.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f};
-float txs[] = {0.0f, 1.8f, 3.8f, 4.8f, 7.8f, 8.8f, 10.8f, 0.2f, 0.2f, 0.2f, 4.2f, 6.8f, 0.2f, 7.8f, 1.8f, 1.0f};
-float tzs[] = {0.0f, 8.2f, 1.0f, 1.0f, 6.0f, 2.0f, 0.4f, 0.0f, 1.8f, 3.8f, 3.8f, 3.8f, 5.8f, 7.8f, 7.8f, 10.8f};
+float sxs[] = {0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 10.8f, 1.8f, 1.8f, 0.6f, 4.0f, 3.4f, 3.0f, 4.2f, 10.2f, 7.4, 0.2};
+float szs[] = {14.0f, 2.6f, 6.0f, 6.0f, 1.8f, 1.8f, 10.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.4f, 0.2, 2.8};
+float txs[] = {0.0f, 1.8f, 3.8f, 4.8f, 7.8f, 8.8f, 10.8f, 0.2f, 0.2f, 0.2f, 4.2f, 6.8f, 0.2f, 7.8f, 1.8f, 1.0f, 0.4, 5.8};
+float tzs[] = {0.0f, 8.2f, 1.0f, 1.0f, 6.0f, 2.0f, 0.4f, 0.0f, 1.8f, 3.8f, 3.8f, 3.8f, 5.8f, 7.8f, 7.8f, 10.8f, 13.6, 11.2};
 
 bool hp[] = {true, true, true};
 float hpx[] = {0.6f, 2.4f, 4.4f};
@@ -26,7 +26,7 @@ float health = 100, maxHealth = 100;
 float lastx=500, lasty=250;
 float angle = 0.0f;
 
-const int wa7shX=0.0, wa7shZ=15.0;
+const int wa7shX=5.0, wa7shZ=13.0;
 bool bulletWa7shFired = false;
 float bulletWa7shX, bulletWa7shZ, lastpx, lastpz;
 
@@ -150,6 +150,12 @@ void drawFloor() {
 	glTranslatef(0.5,0.5,0.5);
 	glutSolidCube(1);
 	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(0,0,11.2);
+	glScalef(6,0.01,3);
+	glTranslatef(0.5,0.5,0.5);
+	glutSolidCube(1);
+	glPopMatrix();
 }
 
 void drawHealthBar() {
@@ -265,10 +271,10 @@ void drawHealthPack(float tx, float tz) {
 }
 
 void drawCastle() {
-	for(int i = 0; i <= 16; i++) {
+	for(int i = 0; i < 18; i++) {
 		drawWall(sxs[i], szs[i], txs[i], tzs[i]);
 	}
-	for(int i = 0; i <= 3; i++) {
+	for(int i = 0; i < 3; i++) {
 		if (hp[i]) {
 			drawHealthPack(hpx[i], hpz[i]);
 		}
@@ -312,13 +318,13 @@ void drawWa7sh(){
 		glRotatef(180, 0,1,0);
 		glutSolidCone(0.03, 0.1, 100, 100);
 	glPopMatrix();	
-	
 	// eye
 	GLfloat mat_diffuse3[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse3);
 	glPushMatrix();
 		glTranslatef(wa7shX, 0.84, wa7shZ-0.18);
 		glScalef(0.3, 0.3, 0.3);
+		glRotatef(-4,0,1,0);
 		glutSolidSphere(0.1, 100, 100);
 	glPopMatrix();	
 }
@@ -345,7 +351,7 @@ bool between(float a, float b, float c) {
 }
 
 bool collision() {
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 18; i++) {
 		if (between(txs[i], px, txs[i] + sxs[i]) && between(tzs[i], pz, tzs[i] + szs[i])) {
 			return true;
 		}
@@ -436,6 +442,36 @@ void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
 	}
 }
 
+int mouselastx=-1, mouselasty=-1, cnt=0;
+
+void mouseMoved(int x, int y){
+	if(mouselastx==-1){
+		mouselastx=x;
+		mouselasty=y;
+		return;
+	}
+	int dir=x-mouselastx;
+	mouselastx=x;
+	mouselasty=y;
+	if(dir>0){
+		//left
+		angle -= 0.05f;
+		lookatX= -cos(angle);
+		lookatZ = sin(angle);
+	}else{
+		// right
+		angle += 0.05f;
+		lookatX = -cos(angle);
+		lookatZ = sin(angle);
+	}
+	if(cnt==2) {
+		cnt=0;
+		glutWarpPointer(500, 250);
+	}else{
+		cnt++;
+	}
+}
+
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
@@ -443,7 +479,9 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(200, 150);
 	glutCreateWindow("Maze + Was7sh");
 	glutDisplayFunc(display);
+	glutPassiveMotionFunc(mouseMoved);
 	glutKeyboardFunc(keyboardPressed);
+	glutSetCursor(GLUT_CURSOR_NONE); 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glShadeModel(GL_SMOOTH);
