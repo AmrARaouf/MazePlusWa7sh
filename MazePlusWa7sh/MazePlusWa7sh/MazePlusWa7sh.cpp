@@ -12,11 +12,11 @@ float tzs[] = {0.0f, 8.2f, 1.0f, 1.0f, 6.0f, 2.0f, 0.4f, 0.0f, 1.8f, 3.8f, 3.8f,
 
 bool hp[] = {true, true, true};
 float hpx[] = {0.6f, 2.4f, 4.4f};
-float hpy[] = {3.4f, 8.4f, 4.4f};
+float hpz[] = {3.4f, 8.4f, 4.4f};
 
 float px = 10.4f, py=0.5f, pz = 0.7f;
 float lookatX = -1.0f, lookatY = 0.0f, lookatZ = 0.0f;
-float health = 100;
+float health = 100, maxHealth = 100;
 
 float lastx=500, lasty=250;
 float angle = 0.0f;
@@ -71,7 +71,39 @@ bool collision() {
 	return false;
 }
 
+void pickUpHealth(void) {
+	for (int i = 0; i <= 3; i++) {
+		if (between(hpx[i], px, hpx[i] + 0.15) && between(hpz[i], pz, hpz[i] + 0.15) && hp[i]) {
+			hp[i] = false;
+			maxHealth += 20;
+			health += 20;
+		}
+	}
+}
+
+void drawHealthBar(void) {
+	float factor = 1;
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(50,450);
+	glVertex2f(75,450);
+	glVertex2f(75, 450 - (maxHealth * factor));
+	glVertex2f(50, 450 - (maxHealth * factor));
+	glVertex2f(50, 450);
+	glEnd();
+	glColor3f(0.6f, 0.0f, 0.0f);
+	glBegin(GL_POLYGON);
+	glVertex2f(50,450);
+	glVertex2f(75,450);
+	glVertex2f(75, 450 - (health * factor));
+	glVertex2f(50, 450 - (health * factor));
+	glVertex2f(50, 450);
+	glEnd();
+}
+
 void display() {
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 	SetupLights();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -85,9 +117,23 @@ void display() {
 	}
 	for(int i = 0; i <= 3; i++) {
 		if (hp[i]) {
-			healthPack(hpx[i], hpy[i]);
+			healthPack(hpx[i], hpz[i]);
 		}
 	}
+
+	glDisable(GL_LIGHTING);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glColor3f(1.0f, 1.0f, 1.0f); // set the drawing color
+	glPointSize(4.0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0,1000,0,500);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+	glColor3f(1,0,0);
+	drawHealthBar();
+
+	pickUpHealth();
 	glFlush();
 	glutPostRedisplay();
 }
