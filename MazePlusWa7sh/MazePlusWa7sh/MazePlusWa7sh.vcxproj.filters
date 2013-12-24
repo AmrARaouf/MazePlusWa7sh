@@ -33,4 +33,14 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="GLAUX.DLL" />
+    <None Include="glew32.dll" />
+    <None Include="glew32mx.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

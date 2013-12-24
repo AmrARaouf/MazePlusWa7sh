@@ -41,6 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\Amr\Desktop\GUC\Semester VII\Graphics\Assignments\HeightMaps Code\Headers;C:\Users\Amr\Documents\GitHub\MazePlusWa7sh\MazePlusWa7sh\MazePlusWa7sh;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Amr\Desktop\GUC\Semester VII\Graphics\Assignments\HeightMaps Code\Headers;C:\Users\Amr\Documents\GitHub\MazePlusWa7sh\MazePlusWa7sh\MazePlusWa7sh;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,6 +90,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLAUX.DLL" />
+    <None Include="glew32.dll" />
+    <None Include="glew32mx.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

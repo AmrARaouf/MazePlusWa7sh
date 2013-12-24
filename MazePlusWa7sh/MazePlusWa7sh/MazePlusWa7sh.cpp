@@ -1,9 +1,12 @@
 #include "stdafx.h"
-#include <cstdlib>
+//#include <cstdlib>
 #include "glew.h"
 #include "glaux.h"
 #include "gl/glut.h"
 #include <iostream>
+
+#pragma comment(lib, "glew32.lib")
+#pragma comment(lib, "GLAUX.lib")
 
 using namespace std;
 
@@ -22,6 +25,8 @@ float health = 100, maxHealth = 100;
 
 float lastx=500, lasty=250;
 float angle = 0.0f;
+
+UINT textureID;
 
 void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
 	AUX_RGBImageRec *pBitmap = NULL;
@@ -63,14 +68,72 @@ void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
 	}
 }
 
+void drawBrick() {
+		glBegin(GL_QUADS);
+		//face 1
+		glTexCoord2f(0,0);
+		glVertex3f(1,0,1);
+		glTexCoord2f(1,0);
+		glVertex3f(1,0,0);
+		glTexCoord2f(1,1);
+		glVertex3f(1,1,0);
+		glTexCoord2f(0,1);
+		glVertex3f(1,1,1);
+		//face 2
+		glTexCoord2f(0,0);
+		glVertex3f(0,0,1);
+		glTexCoord2f(1,0);
+		glVertex3f(1,0,1);
+		glTexCoord2f(1,1);
+		glVertex3f(1,1,1);
+		glTexCoord2f(0,1);
+		glVertex3f(0,1,1);
+		//face 3
+		glTexCoord2f(0,0);
+		glVertex3f(1,1,1);
+		glTexCoord2f(1,0);
+		glVertex3f(1,1,0);
+		glTexCoord2f(1,1);
+		glVertex3f(0,1,0);
+		glTexCoord2f(0,1);
+		glVertex3f(0,1,1);
+		//face 4
+		glTexCoord2f(0,0);
+		glVertex3f(0,0,0);
+		glTexCoord2f(0,1);
+		glVertex3f(0,1,0);
+		glTexCoord2f(1,1);
+		glVertex3f(1,1,0);
+		glTexCoord2f(1,0);
+		glVertex3f(1,0,0);
+		//face 5
+		glTexCoord2f(0,0);
+		glVertex3f(0,0,1);
+		glTexCoord2f(0,1);
+		glVertex3f(0,1,1);
+		glTexCoord2f(1,1);
+		glVertex3f(0,1,0);
+		glTexCoord2f(1,0);
+		glVertex3f(0,0,0);
+		//face 6
+		glTexCoord2f(0,0);
+		glVertex3f(1,0,1);
+		glTexCoord2f(0,1);
+		glVertex3f(0,0,1);
+		glTexCoord2f(1,1);
+		glVertex3f(0,0,0);
+		glTexCoord2f(1,0);
+		glVertex3f(1,0,0);
+	glEnd();
+}
+
 void wall(float sx, float sz, float tx, float tz) {
 	GLfloat mat_diffuse[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glPushMatrix();
 	glTranslatef(tx, 0, tz);
 	glScalef(sx, 1, sz);
-	glTranslatef(0.5,0.5,0.5);
-	glutSolidCube(1);
+	drawBrick();
 	glPopMatrix();
 }
 
@@ -204,12 +267,12 @@ void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
 			}
 			break;
 		case 'd':
-			angle -= 0.02f;
+			angle -= 0.05f;
 			lookatX= -cos(angle);
 			lookatZ = sin(angle);
 			break;
 		case 'a':
-			angle += 0.02f;
+			angle += 0.05f;
 			lookatX = -cos(angle);
 			lookatZ = sin(angle);
 			break;
@@ -229,6 +292,8 @@ int main(int argc, char** argv) {
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
+	CreateFromBMP(&textureID, "texture.bmp");
+	glEnable(GL_TEXTURE_2D);
 	glClearColor(1.0,1.0,1.0,0.0);
 	glutMainLoop();
 	return 0;
