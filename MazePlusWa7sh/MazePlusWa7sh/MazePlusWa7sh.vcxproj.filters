@@ -42,5 +42,11 @@
     <Image Include="texture.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="sand.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

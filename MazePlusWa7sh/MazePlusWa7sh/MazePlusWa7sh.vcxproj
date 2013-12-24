@@ -97,7 +97,9 @@
     <None Include="glew32mx.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="sand.bmp" />
     <Image Include="texture.bmp" />
+    <Image Include="wall.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

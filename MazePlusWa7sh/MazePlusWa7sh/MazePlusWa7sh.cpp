@@ -137,12 +137,36 @@ void wall(float sx, float sz, float tx, float tz) {
 	glPopMatrix();
 }
 
+void drawFloor() {
+	GLfloat mat_diffuse[] = { 0.5f, 0.3f, 0.15f, 0.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glPushMatrix();
+	glScalef(11.2,0.01,11.2);
+	glTranslatef(0.5,0.5,0.5);
+	glutSolidCube(1);
+	glPopMatrix();
+}
+
 void healthPack(float tx, float tz) {
 	GLfloat mat_diffuse[] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glPushMatrix();
 	glTranslatef(tx, 0, tz);
 	glScalef(0.15,0.1,0.15);
+	glTranslatef(0.5,0.5,0.5);
+	glutSolidCube(1);
+	glPopMatrix();
+	GLfloat mat_diffuse1[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse1);
+	glPushMatrix();
+	glTranslatef(tx + 0.05, 0, tz +0.025);
+	glScalef(0.05, 0.12, 0.1);
+	glTranslatef(0.5,0.5,0.5);
+	glutSolidCube(1);
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(tx + 0.025, 0, tz +0.05);
+	glScalef(0.1, 0.12, 0.05);
 	glTranslatef(0.5,0.5,0.5);
 	glutSolidCube(1);
 	glPopMatrix();
@@ -160,10 +184,10 @@ void SetupLightsAndMaterial() {
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
 	// light
-	GLfloat lightIntensity[] = { 0.7f, 0.7f, 1, 0.5f };
+	GLfloat light_intensity[] = { 0.7f, 0.7f, 1, 0.5f };
 	GLfloat light_position[] = { 5.6f, 5.0f, 5.6f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_intensity);
 }
 
 bool between(float a, float b, float c) {
@@ -209,6 +233,18 @@ void drawHealthBar() {
 	glEnd();
 }
 
+void drawCastle() {
+	for(int i = 0; i <= 16; i++) {
+		wall(sxs[i], szs[i], txs[i], tzs[i]);
+	}
+	for(int i = 0; i <= 3; i++) {
+		if (hp[i]) {
+			healthPack(hpx[i], hpz[i]);
+		}
+	}
+	drawFloor();
+}
+
 void display() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -220,14 +256,7 @@ void display() {
 	glLoadIdentity();
 	gluLookAt(px, py, pz, lookatX + px, lookatY + py, lookatZ + pz, 0.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	for(int i = 0; i <= 16; i++) {
-		wall(sxs[i], szs[i], txs[i], tzs[i]);
-	}
-	for(int i = 0; i <= 3; i++) {
-		if (hp[i]) {
-			healthPack(hpx[i], hpz[i]);
-		}
-	}
+	drawCastle();
 
 	glDisable(GL_LIGHTING);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -292,7 +321,7 @@ int main(int argc, char** argv) {
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
-	CreateFromBMP(&textureID, "texture.bmp");
+	CreateFromBMP(&textureID, "wall.bmp");
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(1.0,1.0,1.0,0.0);
 	glutMainLoop();
