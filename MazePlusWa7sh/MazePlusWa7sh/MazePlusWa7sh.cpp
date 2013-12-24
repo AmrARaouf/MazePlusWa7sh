@@ -74,7 +74,7 @@ bool collision() {
 	return false;
 }
 
-void pickUpHealth(void) {
+void pickUpHealth() {
 	for (int i = 0; i <= 3; i++) {
 		if (between(hpx[i], px, hpx[i] + 0.15) && between(hpz[i], pz, hpz[i] + 0.15) && hp[i]) {
 			hp[i] = false;
@@ -84,7 +84,7 @@ void pickUpHealth(void) {
 	}
 }
 
-void drawHealthBar(void) {
+void drawHealthBar() {
 	float factor = 1;
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glBegin(GL_LINE_STRIP);
