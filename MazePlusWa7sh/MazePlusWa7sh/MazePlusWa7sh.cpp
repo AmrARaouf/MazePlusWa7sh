@@ -43,17 +43,20 @@ void healthPack(float tx, float tz) {
 	glPopMatrix();
 }
 
-void SetupLights() {
+void SetupLightsAndMaterial() {
+	// material
 	GLfloat mat_ambient[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 	GLfloat mat_diffuse[] = { 1.0f, 0.6f, 0.6f, 1.0f };
-	GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0, 1.0f };
+	GLfloat mat_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	GLfloat mat_shininess[] = { 50 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
+	// light
 	GLfloat lightIntensity[] = { 0.7f, 0.7f, 1, 0.5f };
-	GLfloat light_position[] = { px, 0.5f, pz, 1.0f };
+	GLfloat light_position[] = { 5.6f, 5.0f, 5.6f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
 }
@@ -104,7 +107,7 @@ void drawHealthBar(void) {
 void display() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	SetupLights();
+	SetupLightsAndMaterial();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60, 1000 / 500, 0.001, 100);
