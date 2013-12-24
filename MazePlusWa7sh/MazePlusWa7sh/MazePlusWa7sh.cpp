@@ -26,6 +26,11 @@ float health = 100, maxHealth = 100;
 float lastx=500, lasty=250;
 float angle = 0.0f;
 
+const int wa7shX=0.0, wa7shZ=15.0;
+bool bulletWa7shFired = false;
+float bulletWa7shX, bulletWa7shZ, lastpx, lastpz;
+
+
 UINT textureID;
 
 void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
@@ -68,7 +73,7 @@ void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
 	}
 }
 
-void drawBrick() {
+void brick() {
 		glBegin(GL_QUADS);
 		//face 1
 		glTexCoord2f(0,0);
@@ -127,13 +132,13 @@ void drawBrick() {
 	glEnd();
 }
 
-void wall(float sx, float sz, float tx, float tz) {
+void drawWall(float sx, float sz, float tx, float tz) {
 	GLfloat mat_diffuse[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glPushMatrix();
 	glTranslatef(tx, 0, tz);
 	glScalef(sx, 1, sz);
-	drawBrick();
+	brick();
 	glPopMatrix();
 }
 
@@ -147,7 +152,94 @@ void drawFloor() {
 	glPopMatrix();
 }
 
-void healthPack(float tx, float tz) {
+void drawHealthBar() {
+	float factor = 1;
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(50,450);
+	glVertex2f(75,450);
+	glVertex2f(75, 450 - (maxHealth * factor));
+	glVertex2f(50, 450 - (maxHealth * factor));
+	glVertex2f(50, 450);
+	glEnd();
+	glColor3f(0.6f, 0.0f, 0.0f);
+	glBegin(GL_POLYGON);
+	glVertex2f(50,450);
+	glVertex2f(75,450);
+	glVertex2f(75, 450 - (health * factor));
+	glVertex2f(50, 450 - (health * factor));
+	glVertex2f(50, 450);
+	glEnd();
+}
+
+void drawAimingCross() {
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(500,240);
+	glVertex2f(500,260);
+	glEnd();
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(490,250);
+	glVertex2f(510,250);
+	glEnd();
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(499,239);
+	glVertex2f(501,239);
+	glVertex2f(501,249);
+	glVertex2f(511,249);
+	glVertex2f(511,251);
+	glVertex2f(501,251);
+	glVertex2f(501,261);
+	glVertex2f(499,261);
+	glVertex2f(499,251);
+	glVertex2f(489,251);
+	glVertex2f(489,249);
+	glVertex2f(499,249);
+	glVertex2f(499,239);
+	glEnd();
+}
+
+void drawBulletWa7sh(){
+	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glPushMatrix();
+		glTranslatef(bulletWa7shX, 0.5, bulletWa7shZ);
+		glScalef(0.2, 0.2, 0.2);
+		glutSolidSphere(0.1, 100, 100);
+	glPopMatrix();
+}
+
+void fireWa7sh(){
+	if(bulletWa7shFired){
+		// check bullet arrived
+		if(fabs(bulletWa7shX-px)<0.1 && fabs(bulletWa7shZ-pz)<0.1){
+			// hit
+			bulletWa7shFired = false;
+			health -= 20;
+		}else if(fabs(bulletWa7shX-lastpx)<0.1 && fabs(bulletWa7shZ-lastpz)<0.1){
+			// reached but no hit
+			bulletWa7shFired = false;
+		}else{
+			float xdir = lastpx-bulletWa7shX,zdir=lastpz-bulletWa7shZ;
+			float det = hypot(xdir, zdir);
+			xdir/=det;
+			zdir/=det;
+			bulletWa7shX += 0.01*xdir; // multiply by factor
+			bulletWa7shZ += 0.01*zdir;
+		}
+		drawBulletWa7sh();
+	}else{
+		// init bullet
+		bulletWa7shX=wa7shX;
+		bulletWa7shZ=wa7shZ;
+		lastpx=px;
+		lastpz=pz;
+		bulletWa7shFired=true;
+	}
+}
+
+void drawHealthPack(float tx, float tz) {
 	GLfloat mat_diffuse[] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glPushMatrix();
@@ -172,6 +264,65 @@ void healthPack(float tx, float tz) {
 	glPopMatrix();
 }
 
+void drawCastle() {
+	for(int i = 0; i <= 16; i++) {
+		drawWall(sxs[i], szs[i], txs[i], tzs[i]);
+	}
+	for(int i = 0; i <= 3; i++) {
+		if (hp[i]) {
+			drawHealthPack(hpx[i], hpz[i]);
+		}
+	}
+	drawFloor();
+}
+
+void drawGun() {
+	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glPushMatrix();
+	glTranslatef(px,0.48,pz);
+	glRotatef(angle*57.3,0,1,0);
+	glTranslatef(-0.05, 0, -0.01);
+	glScalef(0.1, 0.01, 0.01);
+	glutSolidCube(1);
+	glPopMatrix();
+}
+
+void drawWa7sh(){
+	// big O
+	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glPushMatrix();
+		glTranslatef(wa7shX, 0.3, wa7shZ);
+		glScalef(0.3, 0.3, 0.3);
+		glutSolidSphere(1, 100, 100);
+	glPopMatrix();
+	// small O
+	glPushMatrix();
+		glTranslatef(wa7shX, 0.75, wa7shZ);
+		glScalef(0.2, 0.2, 0.2);
+		glutSolidSphere(1, 100, 100);
+	glPopMatrix();
+	// nose
+	GLfloat mat_diffuse2[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse2);
+	glPushMatrix();
+		glTranslatef(wa7shX, 0.75, wa7shZ-0.19);
+		glScalef(1.5, 1.5, 1.5);
+		glRotatef(180, 0,1,0);
+		glutSolidCone(0.03, 0.1, 100, 100);
+	glPopMatrix();	
+	
+	// eye
+	GLfloat mat_diffuse3[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse3);
+	glPushMatrix();
+		glTranslatef(wa7shX, 0.84, wa7shZ-0.18);
+		glScalef(0.3, 0.3, 0.3);
+		glutSolidSphere(0.1, 100, 100);
+	glPopMatrix();	
+}
+
 void SetupLightsAndMaterial() {
 	// material
 	GLfloat mat_ambient[] = { 0.7f, 0.7f, 0.7f, 1.0f };
@@ -182,7 +333,6 @@ void SetupLightsAndMaterial() {
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-
 	// light
 	GLfloat light_intensity[] = { 0.7f, 0.7f, 1, 0.5f };
 	GLfloat light_position[] = { 5.6f, 5.0f, 5.6f, 1.0f };
@@ -203,6 +353,10 @@ bool collision() {
 	return false;
 }
 
+bool outOfMaze() {
+	return !(between(0, px, 11.2) && between(0, pz, 11.2));
+}
+
 void pickUpHealth() {
 	for (int i = 0; i <= 3; i++) {
 		if (between(hpx[i], px, hpx[i] + 0.15) && between(hpz[i], pz, hpz[i] + 0.15) && hp[i]) {
@@ -211,38 +365,6 @@ void pickUpHealth() {
 			health += 20;
 		}
 	}
-}
-
-void drawHealthBar() {
-	float factor = 1;
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(50,450);
-	glVertex2f(75,450);
-	glVertex2f(75, 450 - (maxHealth * factor));
-	glVertex2f(50, 450 - (maxHealth * factor));
-	glVertex2f(50, 450);
-	glEnd();
-	glColor3f(0.6f, 0.0f, 0.0f);
-	glBegin(GL_POLYGON);
-	glVertex2f(50,450);
-	glVertex2f(75,450);
-	glVertex2f(75, 450 - (health * factor));
-	glVertex2f(50, 450 - (health * factor));
-	glVertex2f(50, 450);
-	glEnd();
-}
-
-void drawCastle() {
-	for(int i = 0; i <= 16; i++) {
-		wall(sxs[i], szs[i], txs[i], tzs[i]);
-	}
-	for(int i = 0; i <= 3; i++) {
-		if (hp[i]) {
-			healthPack(hpx[i], hpz[i]);
-		}
-	}
-	drawFloor();
 }
 
 void display() {
@@ -257,6 +379,11 @@ void display() {
 	gluLookAt(px, py, pz, lookatX + px, lookatY + py, lookatZ + pz, 0.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawCastle();
+	drawGun();
+	drawWa7sh();
+	if (outOfMaze()) {
+		fireWa7sh();
+	}
 
 	glDisable(GL_LIGHTING);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -269,6 +396,7 @@ void display() {
     glLoadIdentity();
 	glColor3f(1,0,0);
 	drawHealthBar();
+	drawAimingCross();
 
 	pickUpHealth();
 	glFlush();
