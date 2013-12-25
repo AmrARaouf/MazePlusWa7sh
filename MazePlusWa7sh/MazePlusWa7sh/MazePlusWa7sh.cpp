@@ -21,7 +21,7 @@ float hpz[] = {3.4f, 8.4f, 4.4f};
 
 float px = 10.4f, py=0.5f, pz = 0.7f;
 float lookatX = -1.0f, lookatY = 0.0f, lookatZ = 0.0f;
-float health = 100, maxHealth = 100;
+float health = 100, maxHealth = 100, wa7shHealth = 100, wa7shMaxHealth = 100;
 
 float lastx=500, lasty=250;
 float angle = 0.0f;
@@ -30,6 +30,7 @@ const int wa7shX=5.0, wa7shZ=13.0;
 bool bulletWa7shFired = false;
 float bulletWa7shX, bulletWa7shZ, lastpx, lastpz;
 
+int fire = 0;
 
 UINT textureID;
 
@@ -74,7 +75,7 @@ void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
 }
 
 void brick() {
-		glBegin(GL_QUADS);
+	glBegin(GL_QUADS);
 		//face 1
 		glTexCoord2f(0,0);
 		glVertex3f(1,0,1);
@@ -175,6 +176,26 @@ void drawHealthBar() {
 	glVertex2f(75, 450 - (health * factor));
 	glVertex2f(50, 450 - (health * factor));
 	glVertex2f(50, 450);
+	glEnd();
+}
+
+void drawWa7shHealthBar() {
+	float factor = 1;
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(50 + 875,450);
+	glVertex2f(75 + 875,450);
+	glVertex2f(75 + 875, 450 - (wa7shMaxHealth * factor));
+	glVertex2f(50 + 875, 450 - (wa7shMaxHealth * factor));
+	glVertex2f(50 + 875, 450);
+	glEnd();
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glBegin(GL_POLYGON);
+	glVertex2f(50 + 875,450);
+	glVertex2f(75 + 875,450);
+	glVertex2f(75 + 875, 450 - (wa7shHealth * factor));
+	glVertex2f(50 + 875, 450 - (wa7shHealth * factor));
+	glVertex2f(50 + 875, 450);
 	glEnd();
 }
 
@@ -294,6 +315,26 @@ void drawGun() {
 	glPopMatrix();
 }
 
+void drawGunFire() {
+	glColor3f(1,1,0);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(490,240);
+	glVertex2f(510,260);
+	glVertex2f(491,240);
+	glVertex2f(511,260);
+	glVertex2f(489,240);
+	glVertex2f(509,260);
+	glEnd();
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(490,260);
+	glVertex2f(510,240);
+	glVertex2f(491,260);
+	glVertex2f(511,240);
+	glVertex2f(489,260);
+	glVertex2f(509,240);
+	glEnd();
+}
+
 void drawWa7sh(){
 	// big O
 	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -352,7 +393,7 @@ bool between(float a, float b, float c) {
 
 bool collision() {
 	for (int i = 0; i < 18; i++) {
-		if (between(txs[i], px, txs[i] + sxs[i]) && between(tzs[i], pz, tzs[i] + szs[i])) {
+		if (between(txs[i] - 0.1, px, txs[i] + sxs[i] + 0.1) && between(tzs[i] - 0.1, pz, tzs[i] + szs[i] + 0.1)) {
 			return true;
 		}
 	}
@@ -403,6 +444,13 @@ void display() {
 	glColor3f(1,0,0);
 	drawHealthBar();
 	drawAimingCross();
+	if (outOfMaze()) {
+		drawWa7shHealthBar();
+	}
+	if (fire) {
+		drawGunFire();
+		fire--;
+	}
 
 	pickUpHealth();
 	glFlush();
@@ -439,12 +487,22 @@ void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
 			lookatX = -cos(angle);
 			lookatZ = sin(angle);
 			break;
+		case 'f':
+			if (outOfMaze()) {
+				float vx = px - wa7shX;
+				float vz = pz - wa7shZ;
+				if ((vz / vx) == (pz / px)) {
+					wa7shHealth -= 20;
+				}
+			}
+			fire = 10;
 	}
 }
 
 int mouselastx=-1, mouselasty=-1, cnt=0;
 
 void mouseMoved(int x, int y){
+	printf("mouse moved");
 	if(mouselastx==-1){
 		mouselastx=x;
 		mouselasty=y;
@@ -472,6 +530,19 @@ void mouseMoved(int x, int y){
 	}
 }
 
+void mouseClick(int button, int state, int x, int y) { 
+	printf("click");
+	/*if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP)) {
+		if (outOfMaze()) {
+			float vx = px - wa7shX;
+			float vz = pz - wa7shZ;
+			if ((vz / vx) == (pz / px)) {
+				wa7shHealth -= 20;
+			}
+		}
+	} */
+}
+
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
@@ -479,6 +550,7 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(200, 150);
 	glutCreateWindow("Maze + Was7sh");
 	glutDisplayFunc(display);
+	glutMouseFunc(mouseClick);
 	glutPassiveMotionFunc(mouseMoved);
 	glutKeyboardFunc(keyboardPressed);
 	glutSetCursor(GLUT_CURSOR_NONE); 
