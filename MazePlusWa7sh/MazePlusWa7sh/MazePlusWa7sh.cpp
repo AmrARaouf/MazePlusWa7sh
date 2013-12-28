@@ -415,6 +415,38 @@ void pickUpHealth() {
 	}
 }
 
+void win(int t) {
+	char youwin[] = "you win";
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0,0,0,0.0);
+	glColor3f(1, 0, 0);
+	glPushMatrix();
+	glScalef(0.3,0.3,1);
+	glTranslatef(800,600,0);
+	for (int i = 0; i < 7; i++) {
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, youwin[i]);
+	}
+	glPopMatrix();
+	glFlush();
+	glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+}
+
+void lose(int t) {
+	char youlose[] = "you lose";
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0,0,0,0.0);
+	glColor3f(1, 0, 0);
+	glPushMatrix();
+	glScalef(0.3,0.3,1);
+	glTranslatef(800,600,0);
+	for (int i = 0; i < 8; i++) {
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, youlose[i]);
+	}
+	glPopMatrix();
+	glFlush();
+	glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+}
+
 void display() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -453,12 +485,12 @@ void display() {
 		fire--;
 	}
 	pickUpHealth();
+	glFlush();
 	if (health <= 0) {
-		
+		glutTimerFunc(1000,lose,10);
 	} else if (wa7shHealth <= 0) {
-		
+		glutTimerFunc(1000,win,10);
 	} else {
-		glFlush();
 		glutPostRedisplay();
 	}
 }
