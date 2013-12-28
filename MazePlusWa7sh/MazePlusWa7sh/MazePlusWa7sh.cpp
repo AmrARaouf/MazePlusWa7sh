@@ -77,6 +77,7 @@ void CreateFromBMP(UINT *textureID, LPSTR strFileName) {
 void brick() {
 	glBegin(GL_QUADS);
 		//face 1
+	glNormal3f(1,0,0);
 		glTexCoord2f(0,0);
 		glVertex3f(1,0,1);
 		glTexCoord2f(1,0);
@@ -374,7 +375,7 @@ void SetupLightsAndMaterial() {
 	// material
 	GLfloat mat_ambient[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 	GLfloat mat_diffuse[] = { 1.0f, 0.6f, 0.6f, 1.0f };
-	GLfloat mat_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat mat_specular[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	GLfloat mat_shininess[] = { 50 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -417,7 +418,6 @@ void pickUpHealth() {
 void display() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	SetupLightsAndMaterial();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60, 1000 / 500, 0.001, 100);
@@ -425,6 +425,7 @@ void display() {
 	glLoadIdentity();
 	gluLookAt(px, py, pz, lookatX + px, lookatY + py, lookatZ + pz, 0.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//brick();
 	drawCastle();
 	drawGun();
 	drawWa7sh();
@@ -451,10 +452,22 @@ void display() {
 		drawGunFire();
 		fire--;
 	}
-
 	pickUpHealth();
-	glFlush();
-	glutPostRedisplay();
+	if (health <= 0) {
+		
+	} else if (wa7shHealth <= 0) {
+		
+	} else {
+		glFlush();
+		glutPostRedisplay();
+	}
+}
+
+float angleBetweenVector(float x1, float y1, float x2, float y2) {
+	float dotProduct = (x1*x2)+(y1*y2);
+	float mag1 = sqrtf(x1*x1 + y1*y1);
+	float mag2 = sqrtf(x2*x2 + y2*y2);
+	return acos(dotProduct/(mag1*mag2));
 }
 
 void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
@@ -488,21 +501,22 @@ void keyboardPressed(unsigned char thekey, int mouseX, int mouseY) {
 			lookatZ = sin(angle);
 			break;
 		case 'f':
+			fire = 20;
 			if (outOfMaze()) {
-				float vx = px - wa7shX;
-				float vz = pz - wa7shZ;
-				if ((vz / vx) == (pz / px)) {
+				float vx1 = wa7shX - px;
+				float vy1 = wa7shZ - 0.3 - pz;
+				float vx2 = wa7shX - px;
+				float vy2 = wa7shZ - pz;
+				if (angleBetweenVector(vx1, vy1, vx2, vy2) >= angleBetweenVector(vx2, vy2, lookatX, lookatZ)) {
 					wa7shHealth -= 20;
 				}
-			}
-			fire = 10;
+			}	
 	}
 }
 
 int mouselastx=-1, mouselasty=-1, cnt=0;
 
 void mouseMoved(int x, int y){
-	printf("mouse moved");
 	if(mouselastx==-1){
 		mouselastx=x;
 		mouselasty=y;
@@ -530,27 +544,13 @@ void mouseMoved(int x, int y){
 	}
 }
 
-void mouseClick(int button, int state, int x, int y) { 
-	printf("click");
-	/*if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_UP)) {
-		if (outOfMaze()) {
-			float vx = px - wa7shX;
-			float vz = pz - wa7shZ;
-			if ((vz / vx) == (pz / px)) {
-				wa7shHealth -= 20;
-			}
-		}
-	} */
-}
-
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1000,500);
 	glutInitWindowPosition(200, 150);
-	glutCreateWindow("Maze + Was7sh");
+	glutCreateWindow("Maze + Wa7sh");
 	glutDisplayFunc(display);
-	glutMouseFunc(mouseClick);
 	glutPassiveMotionFunc(mouseMoved);
 	glutKeyboardFunc(keyboardPressed);
 	glutSetCursor(GLUT_CURSOR_NONE); 
@@ -561,6 +561,7 @@ int main(int argc, char** argv) {
 	glEnable(GL_NORMALIZE);
 	CreateFromBMP(&textureID, "wall.bmp");
 	glEnable(GL_TEXTURE_2D);
+	SetupLightsAndMaterial();
 	glClearColor(1.0,1.0,1.0,0.0);
 	glutMainLoop();
 	return 0;
